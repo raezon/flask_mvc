@@ -1,5 +1,5 @@
 # app/controllers/product_controller.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, render_template, redirect, url_for, flash
 from app.services.product_service import (
     create_new_product,
     fetch_product_by_id,
@@ -11,81 +11,64 @@ from app.services.product_service import (
 product_blueprint = Blueprint("product", __name__)
 
 
+# Render products list using Jinja
 @product_blueprint.route("/products", methods=["GET"])
 def get_products():
     products = fetch_all_products()
-    return jsonify(
-        [
-            {
-                "id": product.id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-            }
-            for product in products
-        ]
-    )
+    return render_template("product/index.html", products=products)
 
 
+# Render a single product view using Jinja
 @product_blueprint.route("/product/<int:id>", methods=["GET"])
 def get_product(id):
     product = fetch_product_by_id(id)
     if product:
-        return jsonify(
-            {
-                "id": product.id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-            }
-        )
-    return jsonify({"message": "Product not found"}), 404
+        return render_template("view.html", product=product)
+    flash("Product not found", "error")
+    return redirect(url_for("product.get_products"))
 
 
-@product_blueprint.route("/product", methods=["POST"])
+# Render form to create a new product
+@product_blueprint.route("/product/create", methods=["GET", "POST"])
 def add_product():
-    data = request.get_json()
-    name = data.get("name")
-    description = data.get("description")
-    price = data.get("price")
+    if request.method == "POST":
+        name = request.form.get("name")
+        description = request.form.get("description")
+        price = request.form.get("price")
 
-    product = create_new_product(name, description, price)
-    return (
-        jsonify(
-            {
-                "id": product.id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-            }
-        ),
-        201,
-    )
+        product = create_new_product(name, description, price)
+        flash("Product created successfully", "success")
+        return redirect(url_for("product.get_products"))
+
+    return render_template("/product/create.html")
 
 
-@product_blueprint.route("/product/<int:id>", methods=["PUT"])
+# Render form to update an existing product
+@product_blueprint.route("/product/edit/<int:id>", methods=["GET", "POST"])
 def update_product(id):
-    data = request.get_json()
-    name = data.get("name")
-    description = data.get("description")
-    price = data.get("price")
+    product = fetch_product_by_id(id)
+    if not product:
+        flash("Product not found", "error")
+        return redirect(url_for("product.get_products"))
 
-    product = modify_product(id, name, description, price)
-    if product:
-        return jsonify(
-            {
-                "id": product.id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-            }
-        )
-    return jsonify({"message": "Product not found"}), 404
+    if request.method == "POST":
+        name = request.form.get("name")
+        description = request.form.get("description")
+        price = request.form.get("price")
+
+        product = modify_product(id, name, description, price)
+        flash("Product updated successfully", "success")
+        return redirect(url_for("product.get_products"))
+
+    return render_template("/product/edit.html", product=product)
 
 
-@product_blueprint.route("/product/<int:id>", methods=["DELETE"])
+# Delete product and return to products list
+@product_blueprint.route("/product/delete/<int:id>", methods=["POST"])
 def delete_product(id):
     product = remove_product(id)
     if product:
-        return jsonify({"message": "Product deleted"})
-    return jsonify({"message": "Product not found"}), 404
+        flash("Product deleted successfully", "success")
+    else:
+        flash("Product not found", "error")
+    return redirect(url_for("product.get_products"))

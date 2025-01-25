@@ -1,4 +1,4 @@
-# app/routes.py
+# app/controllers/product_controller.py
 from flask import Blueprint, request, jsonify
 from app.services.product_service import (
     create_new_product,
@@ -8,16 +8,41 @@ from app.services.product_service import (
     remove_product,
 )
 
-main = Blueprint("main", __name__)
+product_blueprint = Blueprint("product", __name__)
 
 
-@main.route("/")
-def home():
-    return jsonify(message="Welcome to Flask with MySQL Boilerplate")
+@product_blueprint.route("/products", methods=["GET"])
+def get_products():
+    products = fetch_all_products()
+    return jsonify(
+        [
+            {
+                "id": product.id,
+                "name": product.name,
+                "description": product.description,
+                "price": product.price,
+            }
+            for product in products
+        ]
+    )
 
 
-# Create a new product
-@main.route("/product", methods=["POST"])
+@product_blueprint.route("/product/<int:id>", methods=["GET"])
+def get_product(id):
+    product = fetch_product_by_id(id)
+    if product:
+        return jsonify(
+            {
+                "id": product.id,
+                "name": product.name,
+                "description": product.description,
+                "price": product.price,
+            }
+        )
+    return jsonify({"message": "Product not found"}), 404
+
+
+@product_blueprint.route("/product", methods=["POST"])
 def add_product():
     data = request.get_json()
     name = data.get("name")
@@ -38,48 +63,14 @@ def add_product():
     )
 
 
-# Get product by ID
-@main.route("/product/<int:product_id>", methods=["GET"])
-def get_product(product_id):
-    product = fetch_product_by_id(product_id)
-    if product:
-        return jsonify(
-            {
-                "id": product.id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-            }
-        )
-    return jsonify({"message": "Product not found"}), 404
-
-
-# Get all products
-@main.route("/products", methods=["GET"])
-def get_all_products():
-    products = fetch_all_products()
-    return jsonify(
-        [
-            {
-                "id": product.id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-            }
-            for product in products
-        ]
-    )
-
-
-# Update product
-@main.route("/product/<int:product_id>", methods=["PUT"])
-def update_product_route(product_id):
+@product_blueprint.route("/product/<int:id>", methods=["PUT"])
+def update_product(id):
     data = request.get_json()
     name = data.get("name")
     description = data.get("description")
     price = data.get("price")
 
-    product = modify_product(product_id, name, description, price)
+    product = modify_product(id, name, description, price)
     if product:
         return jsonify(
             {
@@ -92,10 +83,9 @@ def update_product_route(product_id):
     return jsonify({"message": "Product not found"}), 404
 
 
-# Delete product
-@main.route("/product/<int:product_id>", methods=["DELETE"])
-def delete_product_route(product_id):
-    product = remove_product(product_id)
+@product_blueprint.route("/product/<int:id>", methods=["DELETE"])
+def delete_product(id):
+    product = remove_product(id)
     if product:
-        return jsonify({"message": "Product deleted successfully"})
+        return jsonify({"message": "Product deleted"})
     return jsonify({"message": "Product not found"}), 404
