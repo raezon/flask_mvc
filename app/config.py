@@ -1,3 +1,3 @@
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://username:password@localhost/db_name'
+    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root@localhost/flask_db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
