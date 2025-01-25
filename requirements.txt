@@ -1,3 +1,4 @@
 Flask
 Flask-SQLAlchemy
 mysql-connector-python
+flask-talisman
