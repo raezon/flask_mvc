@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">Welcome, {{ user.name }}</h2>
+            <div class="card">
+                <div class="card-header">
+                    Dashboard
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Your Profile</h5>
+                    <p class="card-text">Email: {{ user.email }}</p>
+                    <a href="{{ url_for('auth.change_password') }}" class="btn btn-warning">Change Password</a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

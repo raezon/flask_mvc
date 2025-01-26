@@ -2,3 +2,6 @@ Flask
 Flask-SQLAlchemy
 mysql-connector-python
 flask-talisman
+PyJWT
+flask-jwt-extended
+python-dotenv

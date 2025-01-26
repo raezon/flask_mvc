@@ -41,3 +41,6 @@ Thumbs.db
 
 # Migrations (if temporary)
 migrations/vers
+
+# Ignore env
+.env

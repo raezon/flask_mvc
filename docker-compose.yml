@@ -9,13 +9,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - FLASK_APP=app.py
       - FLASK_ENV=development
-      - DB_HOST=mysql-db
-      - DB_PORT=3306
-      - DB_NAME=flask_db
-      - DB_USER=root
-      - DB_PASSWORD=root
+      - SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root:root@mysql-db:3306/flask_db"
+      - SQLALCHEMY_TRACK_MODIFICATIONS = False
+      - SECRET_KEY = 'zixalTEst'
     depends_on:
       - mysql-db
 
