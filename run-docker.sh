@@ -28,6 +28,6 @@ docker ps
 # Show additional info
 echo -e "\n${GREEN}Access your services:${NC}"
 echo -e "  Flask App:     http://localhost:8000"
-echo -e "  phpMyAdmin:    http://localhost:8080"
+echo -e "  phpMyAdmin:    http://localhost:8070"
 
 # End of script
