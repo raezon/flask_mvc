@@ -1,27 +1,20 @@
 # app/controllers/product_controller.py
 from flask import Blueprint, request, render_template, redirect, url_for, flash
-from app.services.product_service import (
-    create_new_product,
-    fetch_product_by_id,
-    fetch_all_products,
-    modify_product,
-    remove_product,
-)
-
+from app import db
+from app.models import Product
 product_blueprint = Blueprint("product", __name__)
-
 
 # Render products list using Jinja
 @product_blueprint.route("/products", methods=["GET"])
 def get_products():
-    products = fetch_all_products()
+    products = Product.query.all()  # Récupère tous les produits
     return render_template("product/index.html", products=products)
 
 
 # Render a single product view using Jinja
 @product_blueprint.route("/product/<int:id>", methods=["GET"])
 def get_product(id):
-    product = fetch_product_by_id(id)
+    product = Product.query.get(id)  # Recherche un produit par son ID
     if product:
         return render_template("view.html", product=product)
     flash("Product not found", "error")
@@ -36,8 +29,15 @@ def add_product():
         description = request.form.get("description")
         price = request.form.get("price")
 
-        product = create_new_product(name, description, price)
-        flash("Product created successfully", "success")
+        # Création et ajout du produit à la base de données
+        try:
+            new_product = Product(name=name, description=description, price=float(price))
+            db.session.add(new_product)
+            db.session.commit()
+            flash("Product created successfully", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating product: {e}", "error")
         return redirect(url_for("product.get_products"))
 
     return render_template("/product/create.html")
@@ -46,18 +46,23 @@ def add_product():
 # Render form to update an existing product
 @product_blueprint.route("/product/edit/<int:id>", methods=["GET", "POST"])
 def update_product(id):
-    product = fetch_product_by_id(id)
+    product = Product.query.get(id)  # Recherche le produit par ID
     if not product:
         flash("Product not found", "error")
         return redirect(url_for("product.get_products"))
 
     if request.method == "POST":
-        name = request.form.get("name")
-        description = request.form.get("description")
-        price = request.form.get("price")
+        # Mise à jour des champs du produit
+        try:
+            product.name = request.form.get("name")
+            product.description = request.form.get("description")
+            product.price = float(request.form.get("price"))
 
-        product = modify_product(id, name, description, price)
-        flash("Product updated successfully", "success")
+            db.session.commit()
+            flash("Product updated successfully", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error updating product: {e}", "error")
         return redirect(url_for("product.get_products"))
 
     return render_template("/product/edit.html", product=product)
@@ -66,9 +71,15 @@ def update_product(id):
 # Delete product and return to products list
 @product_blueprint.route("/product/delete/<int:id>", methods=["POST"])
 def delete_product(id):
-    product = remove_product(id)
+    product = Product.query.get(id)  # Recherche le produit par ID
     if product:
-        flash("Product deleted successfully", "success")
+        try:
+            db.session.delete(product)
+            db.session.commit()
+            flash("Product deleted successfully", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error deleting product: {e}", "error")
     else:
         flash("Product not found", "error")
     return redirect(url_for("product.get_products"))

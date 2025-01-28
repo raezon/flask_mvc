@@ -37,7 +37,7 @@ def create_app():
     db.init_app(app)
 
     # Register blueprints/routes
-    from app.routes import register_blueprints
+    from app.controllers import register_blueprints
 
     register_blueprints(app)
 

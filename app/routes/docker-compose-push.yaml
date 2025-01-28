@@ -1,4 +1,0 @@
-docker tag 07f4d1fde3ca raezon/flask-app:latest
-docker tag 4f33388ab0a152ca309eeb70cd2e4a9a8989d5006ec2a4890d883afbffd6be4a raezon/mysql-db:latest
-docker tag c47b789ee9647d592417396e908e89aa45669fa9376549fc1a15e1bdf4ef7e69 yraezon/phpmyadmin:latest
-

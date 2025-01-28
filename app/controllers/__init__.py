@@ -1,10 +1,8 @@
-from app.routes.product_router import product_blueprint
-from app.routes.user_router import user_blueprint
+from app.controllers.product_controller import product_blueprint
 
 # List of all blueprints
 blueprints = [
-    product_blueprint,
-    user_blueprint,
+    product_blueprint
 ]
 
 def register_blueprints(app):
