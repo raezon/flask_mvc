@@ -17,6 +17,7 @@ services:
       - mysql-db
     networks:
       - app-network
+    command: sh -c "sleep 60"
 
   mysql-db:
     image: mysql:8.0
