@@ -1,23 +1,6 @@
 version: '3.8'
 
 services:
-  flask-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: flask-app
-    ports:
-      - "8000:8000"
-    environment:
-      - FLASK_ENV=development
-      - SQLALCHEMY_DATABASE_URI=mysql+mysqlconnector://root:root@mysql-db:3306/flask_db
-      - SQLALCHEMY_TRACK_MODIFICATIONS=False
-      - SECRET_KEY=zixalTEst
-    depends_on:
-      - mysql-db
-    networks:
-      - app-network
-    command: sh -c "sleep 60"
 
   mysql-db:
     image: mysql:8.0
@@ -33,6 +16,24 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    
+
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask-app
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_ENV=development
+      - SQLALCHEMY_DATABASE_URI=mysql+mysqlconnector://root:root@mysql-db:3306/flask_db
+      - SQLALCHEMY_TRACK_MODIFICATIONS=False
+      - SECRET_KEY=zixalTEst
+    depends_on:
+      - mysql-db
     networks:
       - app-network
 
