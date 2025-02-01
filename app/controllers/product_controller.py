@@ -4,6 +4,11 @@ from app import db
 from app.models import Product
 product_blueprint = Blueprint("product", __name__)
 
+@product_blueprint.route("/", methods=["GET"])
+def index():
+
+    return render_template("index.html")
+
 # Render products list using Jinja
 @product_blueprint.route("/products", methods=["GET"])
 def get_products():

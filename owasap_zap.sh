@@ -1,0 +1,1 @@
+docker run -u zap -p 8080:8080 --link flask-app ghcr.io/zaproxy/zaproxy:stable
